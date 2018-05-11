@@ -37,58 +37,73 @@ app.use('*', function(req, res) {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
+const handleError = (req, res) => {
+  return res.status(500).send;
+};
+
+const handleQuery = (req, res) => {
+  return (response) => {
+    if(response) {
+      res.status(200).send(response);
+    }
+    else {
+      res.status(404).send('not_found');
+    }
+  }
+};
+
 router.route('/users')
   .get((req,res) => {
-    User.find(req.query.find).then((users)=>{
-      res.json(users);
-    }).catch((e)=>{
-      res.status(500).send(e);
-    });
+    User.find(req.query.find)
+      .then(handleQuery(req, res))
+      .catch(handleError(req, res));
   })
   .post((req,res) => {
-    User.create(req.body).then((user)=>{
-      res.status(200).send(user);
-    }).catch((e)=>{
-      res.status(500).send(e);
-    });
+    User.create(req.body)
+      .then(handleQuery(req, res))
+      .catch(handleError(req, res));
   });
 
 router.route('/users/:id')
   .get((req, res) => {
-    User.get(req.params.id).then((user)=>{
-      res.json(user);
-    }).catch((e)=>{
-      res.status(500).send(e);
-    });
+    User.get(req.params.id)
+      .then(handleQuery(req, res))
+      .catch(handleError(req, res));
   })
   .put((req, res) => {
-    User.update(req.params.id, req.body).then((user)=>{
-      res.status(200).send(user);
-    }).catch((e)=>{
-      res.status(500).send(e);
-    });
+    User.update(req.params.id, req.body)
+      .then(handleQuery(req, res))
+      .catch(handleError(req, res));
   })
   .delete((req, res) => {
-    User.delete(req.params.id).then((user)=>{
-      res.status(200).send(user);
-    }).catch((e)=>{
-      res.status(500).send(e);
-    });
-  })
+    User.delete(req.params.id)
+      .then(handleQuery(req, res))
+      .catch(handleError(req, res));
+  });
 
 router.route('/officers')
   .get((req,res) => {
-    User.officers().then((users)=>{
-      console.log(users);
-      res.json(users);
-    }).catch((e)=>{
-      res.status(500).send(e);
-    });
+    User.officers()
+      .then(handleQuery(req, res))
+      .catch(handleError(req, res));
   });
 
-router.get('/', function(req, res) {
-  res.json({ message: 'hooray! welcome to our api!' });   
-});
+router.route('/officers/:id')
+  .get((req, res) => {
+    User.getOfficer(req.params.id)
+      .then(handleQuery(req, res))
+      .catch(handleError(req, res));
+  })
+  .post((req, res) => {
+    User.addOfficer(req.params.id)
+      .then(handleQuery(req, res))
+      .catch(handleError(req, res));
+  })
+  .delete((req, res) => {
+    User.removeOfficer(req.params.id)
+      .then(handleQuery(req, res))
+      .catch(handleError(req, res));
+  })
 
 // START THE SERVER
 // =============================================================================

@@ -11,11 +11,23 @@ db.on('trace', (sql)=>{
   console.log('sql:', sql);
 });
 
-const cbToPromise = (resolve, reject) => {
+const writeToPromise = (resolve, reject) => {
+  return (err, res) => { 
+    if(err) reject(err);
+    else {
+      resolve('success');
+    }
+  };
+};
+
+const readToPromise = (resolve, reject) => {
   return (err, res) => { 
     console.log(err);
     if(err) reject(err);
-    else resolve(res);
+    else {
+      console.log(res);
+      resolve(res);
+    }
   };
 };
 
@@ -57,29 +69,44 @@ const User = {
           $an: user.ac_number,
           $ro: user.range_officer,
         },
-        cbToPromise(resolve, reject));
+        writeToPromise(resolve, reject));
     });
   },
   get: (id) => {
     return new Promise((resolve, reject) => {
-      db.get('SELECT rowid as id, * from users where rowid = ?', [id], cbToPromise(resolve, reject));
+      db.get('SELECT rowid as id, * from users where rowid = ?', [id], readToPromise(resolve, reject));
     });
   },
   find: (find) => {
     if(find) {
       return new Promise((resolve, reject) => {
-        db.all(finderSQL, { $keyword: `%${find}%` }, cbToPromise(resolve, reject));
+        db.all(finderSQL, { $keyword: `%${find}%` }, readToPromise(resolve, reject));
       });
     }
     else {
       return new Promise((resolve, reject) => {
-        db.all("SELECT rowid as id, * FROM users where deleted = 0", cbToPromise(resolve, reject));
+        db.all("SELECT rowid as id, * FROM users where deleted = 0", readToPromise(resolve, reject));
       });
     }
   },
   officers: () => {
     return new Promise((resolve, reject) => {
-      db.all("SELECT rowid as id, * FROM users WHERE range_officer = 1 AND deleted = 0", cbToPromise(resolve, reject));
+      db.all("SELECT rowid as id, * FROM users WHERE range_officer = 1 AND deleted = 0", readToPromise(resolve, reject));
+    });
+  },
+  getOfficer: (id) => {
+    return new Promise((resolve, reject) => {
+      db.get('SELECT rowid as id, * from users where rowid = ? AND range_officer=1;', [id], readToPromise(resolve, reject));
+    });
+  },
+  removeOfficer: (id) => {
+    return new Promise((resolve, reject) => {
+      db.run("UPDATE users SET range_officer=0 WHERE rowid=?", [id], writeToPromise(resolve, reject));
+    });
+  },
+  addOfficer: (id) => {
+    return new Promise((resolve, reject) => {
+      db.run("UPDATE users SET range_officer=1 WHERE rowid=?", [id], writeToPromise(resolve, reject));
     });
   },
   update: (id, user) => {
@@ -93,12 +120,12 @@ const User = {
           $mn: user.member_number,
           $an: user.ac_number,
         }, 
-        cbToPromise(resolve, reject));
+        writeToPromise(resolve, reject));
     });
   },
   delete: (id) => {
     return new Promise((resolve, reject) => {
-      db.run("UPDATE users SET deleted=1 WHERE rowid=?", [id], cbToPromise(resolve, reject));
+      db.run("UPDATE users SET deleted=1 WHERE rowid=?", [id], writeToPromise(resolve, reject));
     });
   }
 }
