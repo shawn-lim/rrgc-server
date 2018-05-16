@@ -8,6 +8,7 @@ var bodyParser = require('body-parser');
 var path       = require('path');
 
 import User from './app/models/User';
+import SignIns from './app/models/SignIns';
 
 // configure app to use bodyParser()
 // this will let us get the data from a POST
@@ -38,7 +39,9 @@ app.use('*', function(req, res) {
 });
 
 const handleError = (req, res) => {
-  return res.status(500).send;
+  return (error) => {
+    res.status(500).send(error);
+  }
 };
 
 const handleQuery = (req, res) => {
@@ -81,6 +84,23 @@ router.route('/users/:id')
       .catch(handleError(req, res));
   });
 
+router.route('/users/:id')
+  .get((req, res) => {
+    User.get(req.params.id)
+      .then(handleQuery(req, res))
+      .catch(handleError(req, res));
+  })
+  .put((req, res) => {
+    User.update(req.params.id, req.body)
+      .then(handleQuery(req, res))
+      .catch(handleError(req, res));
+  })
+  .delete((req, res) => {
+    User.delete(req.params.id)
+      .then(handleQuery(req, res))
+      .catch(handleError(req, res));
+  });
+
 router.route('/officers')
   .get((req,res) => {
     User.officers()
@@ -101,6 +121,24 @@ router.route('/officers/:id')
   })
   .delete((req, res) => {
     User.removeOfficer(req.params.id)
+      .then(handleQuery(req, res))
+      .catch(handleError(req, res));
+  })
+
+const dummy = {
+  user_id: 2,
+  rentals: {
+    range: 1,
+    bow: 1,
+    arrows: 1,
+    misc: 1,
+    target_face: 2,
+  }
+}
+
+router.route('/signins')
+  .post((req, res) => {
+    SignIns.create(dummy)
       .then(handleQuery(req, res))
       .catch(handleError(req, res));
   })

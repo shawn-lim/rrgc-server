@@ -25,7 +25,6 @@ const readToPromise = (resolve, reject) => {
     console.log(err);
     if(err) reject(err);
     else {
-      console.log(res);
       resolve(res);
     }
   };
