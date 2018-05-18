@@ -1,34 +1,8 @@
 import sqlite3 from 'sqlite3';
 import ROS from  '../seeds/ros';
+import { writeToPromise, readToPromise } from '../utils/helpers'
 
 const db = new sqlite3.Database('rrgc.db');
-
-db.serialize(function() {
-  db.run("CREATE TABLE if not exists users (first_name TEXT, last_name TEXT, phone_number TEXT, member_number INT, ac_number TEXT, range_officer INT, deleted INT)");
-});
-
-db.on('trace', (sql)=>{
-  console.log('sql:', sql);
-});
-
-const writeToPromise = (resolve, reject) => {
-  return (err, res) => { 
-    if(err) reject(err);
-    else {
-      resolve('success');
-    }
-  };
-};
-
-const readToPromise = (resolve, reject) => {
-  return (err, res) => { 
-    console.log(err);
-    if(err) reject(err);
-    else {
-      resolve(res);
-    }
-  };
-};
 
 const finderSQL = `
 SELECT rowid as id, * FROM users

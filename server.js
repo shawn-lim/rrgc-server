@@ -7,8 +7,11 @@ var app        = express();                 // define our app using express
 var bodyParser = require('body-parser');
 var path       = require('path');
 
+import Seeder from './app/seeds/initialize';
+
 import User from './app/models/User';
 import SignIns from './app/models/SignIns';
+import Services from './app/models/Services';
 
 // configure app to use bodyParser()
 // this will let us get the data from a POST
@@ -129,14 +132,37 @@ const dummy = {
   user_id: 2,
   rentals: {
     range: 1,
-    bow: 1,
-    arrows: 1,
-    misc: 1,
-    target_face: 2,
+    services: [
+      'bow_rental',
+      'arrow_rental',
+      'target_face'
+    ]
   }
 }
 
-router.route('/signins')
+router.route('/signins/:id?')
+  .get((req, res) => {
+    if(req.params.id) {
+      SignIns.get(req.params.id)
+        .then(handleQuery(req, res))
+        .catch(handleError(req, res));
+    }
+    else if (req.query.date) {
+      SignIns.getSession(req.query.date)
+        .then(handleQuery(req, res))
+        .catch(handleError(req, res));
+    }
+    else {
+      SignIns.getToday()
+        .then(handleQuery(req, res))
+        .catch(handleError(req, res));
+    }
+  })
+  .put((req, res) => {
+    SignIns.create(dummy)
+      .then(handleQuery(req, res))
+      .catch(handleError(req, res));
+  })
   .post((req, res) => {
     SignIns.create(dummy)
       .then(handleQuery(req, res))
