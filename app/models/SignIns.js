@@ -72,12 +72,12 @@ const SignIns = {
   },
   get: (id) => {
     return new Promise((resolve, reject) => {
-      db.get('SELECT rowid as id, * from signins where rowid = ?', [id], readToPromise(resolve, reject));
+      db.get('SELECT signins.rowid as id, * from signins LEFT JOIN users ON users.rowid = signins.user_id where signins.rowid = ?', [id], readToPromise(resolve, reject));
     });
   },
   getFromSession: (session_id) => {
     return new Promise((resolve, reject) => {
-      db.all('SELECT rowid as id, * from signins where session_id = ?', [session_id], readToPromise(resolve, reject));
+      db.all('SELECT signins.rowid as id, * from signins LEFT JOIN users ON users.rowid = signins.user_id where session_id = ?', [session_id], readToPromise(resolve, reject));
     });
   }
 };

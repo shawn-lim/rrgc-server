@@ -59,9 +59,21 @@ const handleQuery = (req, res) => {
   }
 };
 
-router.route('/users')
+router.route('/users/:id?')
   .get((req,res) => {
-    User.find(req.query.find)
+    if(req.params.id) {
+      User.get(req.params.id)
+        .then(handleQuery(req, res))
+        .catch(handleError(req, res));
+    }
+    else {
+      User.search(req.query.search)
+        .then(handleQuery(req, res))
+        .catch(handleError(req, res));
+    }
+  })
+  .put((req, res) => {
+    User.update(req.params.id, req.body)
       .then(handleQuery(req, res))
       .catch(handleError(req, res));
   })
@@ -69,18 +81,6 @@ router.route('/users')
     User.create(req.body)
       .then(handleQuery(req, res))
       .catch(handleError(req, res));
-  });
-
-router.route('/users/:id')
-  .get((req, res) => {
-    User.get(req.params.id)
-      .then(handleQuery(req, res))
-      .catch(handleError(req, res));
-  })
-  .put((req, res) => {
-    User.update(req.params.id, req.body)
-      .then(handleQuery(req, res))
-      .catch(handleError(req, res));
   })
   .delete((req, res) => {
     User.delete(req.params.id)
@@ -88,35 +88,18 @@ router.route('/users/:id')
       .catch(handleError(req, res));
   });
 
-router.route('/users/:id')
+router.route('/officers/:id?')
   .get((req, res) => {
-    User.get(req.params.id)
-      .then(handleQuery(req, res))
-      .catch(handleError(req, res));
-  })
-  .put((req, res) => {
-    User.update(req.params.id, req.body)
-      .then(handleQuery(req, res))
-      .catch(handleError(req, res));
-  })
-  .delete((req, res) => {
-    User.delete(req.params.id)
-      .then(handleQuery(req, res))
-      .catch(handleError(req, res));
-  });
-
-router.route('/officers')
-  .get((req,res) => {
-    User.officers()
-      .then(handleQuery(req, res))
-      .catch(handleError(req, res));
-  });
-
-router.route('/officers/:id')
-  .get((req, res) => {
-    User.getOfficer(req.params.id)
-      .then(handleQuery(req, res))
-      .catch(handleError(req, res));
+    if(req.params.id) {
+      User.getOfficer(req.params.id)
+        .then(handleQuery(req, res))
+        .catch(handleError(req, res));
+    }
+    else {
+      User.officers()
+        .then(handleQuery(req, res))
+        .catch(handleError(req, res));
+    }
   })
   .post((req, res) => {
     User.addOfficer(req.params.id)

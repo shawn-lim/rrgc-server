@@ -4,7 +4,7 @@ import { writeToPromise, readToPromise } from '../utils/helpers'
 
 const db = new sqlite3.Database('rrgc.db');
 
-const finderSQL = `
+const searchSQL = `
 SELECT rowid as id, * FROM users
 WHERE
 first_name like $keyword 
@@ -50,10 +50,10 @@ const User = {
       db.get('SELECT rowid as id, * from users where rowid = ?', [id], readToPromise(resolve, reject));
     });
   },
-  find: (find) => {
-    if(find) {
+  search: (search) => {
+    if(search) {
       return new Promise((resolve, reject) => {
-        db.all(finderSQL, { $keyword: `%${find}%` }, readToPromise(resolve, reject));
+        db.all(searchSQL, { $keyword: `%${search}%` }, readToPromise(resolve, reject));
       });
     }
     else {
