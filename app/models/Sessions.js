@@ -17,10 +17,15 @@ rowid = $id`;
 
 const Sessions = {
   get: (date) => {
-    console.log(date);
+    date =  date === 'today' ? moment().format(DATE_FORMAT) : date;
     return new Promise((resolve, reject) => {
-
-      db.all('SELECT rowid as id, * from sessions where date = ?', [date], (err, sessions) => { 
+      db.all(`
+      SELECT sessions.rowid as id, * 
+      FROM sessions 
+      LEFT JOIN 
+        (SELECT first_name ro_firstname, last_name as ro_lastname FROM users) as users 
+      ON sessions.ro_id = users.rowid 
+      where date = ?`, [date], (err, sessions) => { 
         if(err) reject(err)
         else {
           Promise.all(

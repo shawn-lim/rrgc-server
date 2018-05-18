@@ -177,6 +177,12 @@ router.route('/sessions/:id?')
       .catch(handleError(req, res));
   })
 
+router.route('/services/:id?')
+  .get((req, res) => {
+    Services.get(req.params.id)
+      .then(handleQuery(req, res))
+      .catch(handleError(req, res));
+  });
 
 // START THE SERVER
 // =============================================================================
