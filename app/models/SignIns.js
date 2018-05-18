@@ -7,7 +7,7 @@ import { writeToPromise, readToPromise } from '../utils/helpers';
 const db = new sqlite3.Database('rrgc.db');
 const DATE_FORMAT = 'YYYYMMDD';
 
-const creatorSQL = `insert into signins values ($uid, $date, $time, $fee)`;
+const creatorSQL = `insert into signins values ($uid, $session_id, $time, $fee)`;
 
 const SignIns = {
   create: (payload) => {
@@ -52,7 +52,7 @@ const SignIns = {
           creatorSQL,
           {
             $uid: payload.user_id,
-            $date: date,
+            $session_id: payload.session_id,
             $time: time,
             $fee: cost
           },
@@ -75,20 +75,10 @@ const SignIns = {
       db.get('SELECT rowid as id, * from signins where rowid = ?', [id], readToPromise(resolve, reject));
     });
   },
-  getSession: (date) => {
-    console.log(date);
+  getFromSession: (session_id) => {
     return new Promise((resolve, reject) => {
-      db.all('SELECT rowid as id, * from signins where date = ?', [date], (err, signins) => {
-        if (err) {
-          reject(err);
-        } else {
-        }
-      });
+      db.all('SELECT rowid as id, * from signins where session_id = ?', [session_id], readToPromise(resolve, reject));
     });
-  },
-  getToday: () => {
-    const date = moment().format(DATE_FORMAT);
-    return SignIns.getSession(date);
   }
 };
 

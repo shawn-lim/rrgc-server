@@ -11,6 +11,7 @@ import Seeder from './app/seeds/initialize';
 
 import User from './app/models/User';
 import SignIns from './app/models/SignIns';
+import Sessions from './app/models/Sessions';
 import Services from './app/models/Services';
 
 // configure app to use bodyParser()
@@ -128,8 +129,15 @@ router.route('/officers/:id')
       .catch(handleError(req, res));
   })
 
-const dummy = {
+const dummy_session = {
   user_id: 2,
+  name: 'Test',
+  start_float: 100
+};
+
+const dummy_signin = {
+  user_id: 3,
+  session_id: 1,
   rentals: {
     range: 1,
     services: [
@@ -147,27 +155,45 @@ router.route('/signins/:id?')
         .then(handleQuery(req, res))
         .catch(handleError(req, res));
     }
+    else {
+      res.status(400).send('ID_REQUIRED');
+    }
+  })
+  .put((req, res) => {
+    // SignIns.create(dummy)
+    // .then(handleQuery(req, res))
+    // .catch(handleError(req, res));
+  })
+  .post((req, res) => {
+    SignIns.create(dummy_signin)
+      .then(handleQuery(req, res))
+      .catch(handleError(req, res));
+  })
+
+router.route('/sessions/:id?')
+  .get((req, res) => {
+    if(req.params.id) {
+      Sessions.get(req.params.id)
+        .then(handleQuery(req, res))
+        .catch(handleError(req, res));
+    }
     else if (req.query.date) {
-      SignIns.getSession(req.query.date)
+      Sessions.getSession(req.query.date)
         .then(handleQuery(req, res))
         .catch(handleError(req, res));
     }
     else {
-      SignIns.getToday()
+      Sessions.getToday()
         .then(handleQuery(req, res))
         .catch(handleError(req, res));
     }
   })
-  .put((req, res) => {
-    SignIns.create(dummy)
-      .then(handleQuery(req, res))
-      .catch(handleError(req, res));
-  })
   .post((req, res) => {
-    SignIns.create(dummy)
+    Sessions.create(dummy_session)
       .then(handleQuery(req, res))
       .catch(handleError(req, res));
   })
+
 
 // START THE SERVER
 // =============================================================================
